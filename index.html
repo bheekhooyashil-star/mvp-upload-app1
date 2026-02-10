@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MVP Upload</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    #status {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+    video, canvas {
+      width: 100%;
+      max-width: 320px;
+      margin: auto;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Take a Photo</h2>
+
+<video id="video" autoplay></video>
+<br />
+<button onclick="takePhoto()">📸 Capture</button>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+<div id="status"></div>
+
+<script>
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const statusDiv = document.getElementById("status");
+
+// Access camera
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => video.srcObject = stream)
+  .catch(err => alert("Camera access denied"));
+
+function takePhoto() {
+  const context = canvas.getContext("2d");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  context.drawImage(video, 0, 0);
+
+  const imageData = canvas.toDataURL("image/jpeg").split(",")[1];
+
+  statusDiv.innerHTML = "🤖 AI is reading the image...";
+
+  fetch("https://script.google.com/macros/s/AKfycbxs4gwjnGNc1gXQQ1nVsBvCTDMht0H5YbfXeWb5_57IDKOZgpvmpv5XRjNPVkMWUptW5A/exec", {
+    method: "POST",
+    body: JSON.stringify({
+      image: imageData,
+      email: "user@example.com"
+    })
+  });
+
+  setTimeout(() => {
+    statusDiv.innerHTML = "✅ Check your email";
+  }, 3500);
+}
+</script>
+
+</body>
+</html>
